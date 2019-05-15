@@ -18,7 +18,7 @@ namespace My.Wiki.Wiki {
 
     public class Function : ALambdaFunction<DynamoDBEvent, string> {
 
-        private const int LINKS_PER_PAGE = 1;
+        private const int LINKS_PER_PAGE = 10;
         private string TABLE_NAME;
 
         //--- Types ---
@@ -124,7 +124,7 @@ namespace My.Wiki.Wiki {
             if(!matchedLink && urlInfo.Depth > 1) {
 
                 // take the first link and add it to the table
-                var linkToQueue = foundLinks.First();
+                var linkToQueue = foundLinks.Take(LINKS_PER_PAGE).First();
                 item["WikiId"] = new AttributeValue { S = $"{urlInfo.Origin}::{linkToQueue}"};
                 item["CrawlUrl"] = new AttributeValue { S = $"{linkToQueue}"};
                 item["CrawlDepth"] = new AttributeValue { N = $"{urlInfo.Depth - 1}" };

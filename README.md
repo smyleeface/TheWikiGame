@@ -49,7 +49,7 @@ git clone git@github.com:LambdaSharp/TheWikiGame.git
 #### Deploy
 ```
 cd TheWikiGame
-lash init --tier wiki       //one time / after stack is destroyed
+lash init --tier wiki       //one time
 lash deploy --tier wiki     //to propagate code changes
 ```
 
@@ -78,9 +78,9 @@ In order to trigger the lambda function, add the following items into DynamoDB.
   "WikiId": "https://fakeurls.com::https://fakeurls.com",
   "CrawlBackLink": "https://fakeurls.com",
   "CrawlDepth": 5,
-  "CrawlOrigin": "https://en.wikipedia.org/wiki/Apple",
+  "CrawlOrigin": "https://en.wikipedia.org/wiki/Banana",
   "CrawlTarget": "https://en.wikipedia.org/wiki/Paint",
-  "CrawlUrl": "https://en.wikipedia.org/wiki/Apple"
+  "CrawlUrl": "https://en.wikipedia.org/wiki/Banana"
 }
 ```
 > **NOTE**: When adding an item to the DynamoDB table, there is a dropdown on the top left corner to **paste JSON**. 

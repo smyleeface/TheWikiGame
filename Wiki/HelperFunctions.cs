@@ -26,8 +26,13 @@ namespace My.Wiki.Wiki {
         }
         
         public static bool FilterLink(Uri link) {
-            var linkString = link.ToString();
-            if(linkString.Contains("File:")) {
+            if(link.PathAndQuery.Contains(":")) {
+                return true;
+            }
+            if(link.PathAndQuery.Contains('#')) {
+                return true;
+            }
+            if(link.PathAndQuery.Contains('?')) {
                 return true;
             }
             return false;
