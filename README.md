@@ -54,7 +54,7 @@ lash deploy --tier wiki     //to propagate code changes
 ```
 
 
-## 1st Level  - Trigger Lambda Function and Crawl.
+## Preliminary Level  - Trigger Lambda Function and Crawl.
 Here are two sample items you can add to the dynamo table to trigger the lambda function. When a solution is found, a final item will be added to the table with a Depth of 0. If a solution is not found, the table will be filled until the Depth reaches 1. 
 
 In order to trigger the lambda function, add the following items into DynamoDB. 
@@ -63,12 +63,12 @@ In order to trigger the lambda function, add the following items into DynamoDB.
 #### (Solution found):
 ```
 {
-  "WikiId": "https://en.wikipedia.org/wiki/Apple::https://en.wikipedia.org/wiki/Seed",
-  "CrawlBackLink": "https://en.wikipedia.org/wiki/Fruit",
-  "CrawlDepth": 3,
-  "CrawlOrigin": "https://en.wikipedia.org/wiki/Apple",
-  "CrawlTarget": "https://en.wikipedia.org/wiki/Earth",
-  "CrawlUrl": "https://en.wikipedia.org/wiki/Seed"
+  "WikiId": "https://fakeurls.com::https://fakeurls.com",
+  "CrawlBackLink": "https://fakeurls.com",
+  "CrawlDepth": 5,
+  "CrawlOrigin": "https://en.wikipedia.org/wiki/Banana",
+  "CrawlTarget": "https://en.wikipedia.org/wiki/Lithuania",
+  "CrawlUrl": "https://en.wikipedia.org/wiki/Banana"
 }
 ```
 
@@ -83,9 +83,25 @@ In order to trigger the lambda function, add the following items into DynamoDB.
   "CrawlUrl": "https://en.wikipedia.org/wiki/Banana"
 }
 ```
+
+#### (No solution found: 1st level)
+```
+{
+  "WikiId": "https://en.wikipedia.org/wiki/Apple::https://en.wikipedia.org/wiki/Seed",
+  "CrawlBackLink": "https://en.wikipedia.org/wiki/Fruit",
+  "CrawlDepth": 3,
+  "CrawlOrigin": "https://en.wikipedia.org/wiki/Apple",
+  "CrawlTarget": "https://en.wikipedia.org/wiki/Earth",
+  "CrawlUrl": "https://en.wikipedia.org/wiki/Seed"
+}
+```
 > **NOTE**: When adding an item to the DynamoDB table, there is a dropdown on the top left corner to **paste JSON**. 
 
-## 2nd Level  - Expand, Expand, Expand!
+## 1st Level - Don't add duplicate links!
+When picking a link to queue into the table, make sure it doesn't already exist in the table. 
+> **NOTE**: The sign that you are adding duplicates is when one of your dynamo items gets overwritten because the key already existed in the table. 
+
+## 2nd Level - Expand, Expand, Expand!
 Instead of queueing only one link to the dynamo table, add two. **Be careful, as this can quickly grow exponentially**. Be sure to verify that your Depth parameter is working properly to terminate the recursive calls before trying to add more than 2 links to the table.
 > **NOTE**: If your lambda function spirals out of control, you can delete the function. The lambda function can be quickly redeployed using lash. 
 
