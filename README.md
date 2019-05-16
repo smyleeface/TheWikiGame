@@ -84,7 +84,13 @@ In order to trigger the lambda function, add the following items into DynamoDB.
 }
 ```
 
-#### (No solution found: 1st level)
+> **NOTE**: When adding an item to the DynamoDB table, there is a dropdown on the top left corner to **paste JSON**. 
+
+## 1st Level - Don't add duplicate links!
+When picking a link to queue into the table, make sure it doesn't already exist in the table. 
+> **NOTE**: The sign that you are adding duplicates is when one of your dynamo items gets overwritten because the key already existed in the table. 
+
+#### Sample (No solution found and demonstrates the duplicate key bug)
 ```
 {
   "WikiId": "https://en.wikipedia.org/wiki/Apple::https://en.wikipedia.org/wiki/Seed",
@@ -95,11 +101,6 @@ In order to trigger the lambda function, add the following items into DynamoDB.
   "CrawlUrl": "https://en.wikipedia.org/wiki/Seed"
 }
 ```
-> **NOTE**: When adding an item to the DynamoDB table, there is a dropdown on the top left corner to **paste JSON**. 
-
-## 1st Level - Don't add duplicate links!
-When picking a link to queue into the table, make sure it doesn't already exist in the table. 
-> **NOTE**: The sign that you are adding duplicates is when one of your dynamo items gets overwritten because the key already existed in the table. 
 
 ## 2nd Level - Expand, Expand, Expand!
 Instead of queueing only one link to the dynamo table, add two. **Be careful, as this can quickly grow exponentially**. Be sure to verify that your Depth parameter is working properly to terminate the recursive calls before trying to add more than 2 links to the table.
