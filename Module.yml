@@ -30,7 +30,7 @@ Items:
   - Function: Wiki
     Description: Beat The Wiki Game
     Memory: 256
-    Timeout: 30
+    Timeout: 300
     Sources:
       - DynamoDB: Table
-        BatchSize: 15
+        BatchSize: 1

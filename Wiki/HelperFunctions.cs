@@ -29,7 +29,7 @@ namespace My.Wiki.Wiki {
             if(link.PathAndQuery.Contains(":")) {
                 return true;
             }
-            if(link.PathAndQuery.Contains('#')) {
+            if(link.ToString().Contains('#')) {
                 return true;
             }
             if(link.PathAndQuery.Contains('?')) {

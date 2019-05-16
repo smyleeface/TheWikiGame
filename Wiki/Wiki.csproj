@@ -9,15 +9,9 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.Core" Version="1.1.0" />
+    <PackageReference Include="Amazon.Lambda.DynamoDBEvents" Version="1.1.0" />
     <PackageReference Include="Amazon.Lambda.Serialization.Json" Version="1.5.0" />
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.3.101.9" />
     <PackageReference Include="LambdaSharp" Version="0.6.0.*" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Amazon.Lambda.DynamoDBEvents, Version=1.0.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604">
-      <HintPath>..\..\..\.nuget\packages\amazon.lambda.dynamodbevents\1.1.0\lib\netstandard2.0\Amazon.Lambda.DynamoDBEvents.dll</HintPath>
-    </Reference>
-    <Reference Include="AWSSDK.DynamoDBv2, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604">
-      <HintPath>..\..\..\.nuget\packages\awssdk.dynamodbv2\3.3.17.5\lib\netstandard1.3\AWSSDK.DynamoDBv2.dll</HintPath>
-    </Reference>
   </ItemGroup>
 </Project>

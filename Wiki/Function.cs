@@ -135,19 +135,32 @@ namespace My.Wiki.Wiki {
 
             // write the item to the table
             if(matchedLink || urlInfo.Depth > 1) {
-                var writeRequest = new BatchWriteItemRequest {
-                    RequestItems = new Dictionary<string, List<WriteRequest>>{
-                        [TABLE_NAME] =  new List<WriteRequest>{
-                            new WriteRequest{
-                                PutRequest = new PutRequest {
-                                    Item = item
-                                }
-                            },
+                try {
+                    var writeRequest = new PutItemRequest {
+                        TableName = TABLE_NAME,
+                        Item = item,
+                        ConditionExpression = "WikiId <> :wikiid",
+                        ExpressionAttributeValues = new Dictionary<string, AttributeValue> {
+                            {":wikiid", item["WikiId"]}
                         }
-                    }
-                };
-                var writeResponse = await _client.BatchWriteItemAsync(writeRequest);
+                    };
+                    var writeResponse = await _client.PutItemAsync(writeRequest);
+                    LogInfo($"writeResponse {JsonConvert.SerializeObject(writeResponse)}");
+                }
+                catch (Exception e) {
+                    LogInfo($"item {JsonConvert.SerializeObject(item)}");
+                    LogInfo($"Exception {e}");
+                }
             }
         }
     }
 }
+//new Dictionary<string, List<WriteRequest>>{
+//[TABLE_NAME] =  new List<WriteRequest>{
+//    new WriteRequest{
+//        PutRequest = new PutRequest {
+//            Item = item
+//        }
+//    }
+//}
+//}
