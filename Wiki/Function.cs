@@ -108,48 +108,60 @@ namespace My.Wiki.Wiki {
                 foundLinks.Add(parsedLink);
             }
 
-            var item = new Dictionary<string, AttributeValue>();
+            var items = new List<Dictionary<string, AttributeValue>>();
 
             // create solution item
             if(matchedLink) {
-                item["WikiId"] = new AttributeValue { S = $"{urlInfo.Origin}::{backLink}"};
-                item["CrawlUrl"] = new AttributeValue { S = $"{backLink}"};
-                item["CrawlDepth"] = new AttributeValue { N = "0" };
-                item["CrawlOrigin"] = new AttributeValue { S = $"{urlInfo.Origin}" };
-                item["CrawlTarget"] = new AttributeValue { S = $"{urlInfo.Target}" };
-                item["CrawlBackLink"] = new AttributeValue { S = $"{urlInfo.Url}"};
+                items.Add( new Dictionary<string, AttributeValue> {
+                    {"WikiId", new AttributeValue { S = $"{urlInfo.Origin}::{backLink}"}},
+                    {"CrawlUrl", new AttributeValue { S = $"{backLink}"}},
+                    {"CrawlDepth", new AttributeValue { N = "0" }},
+                    {"CrawlOrigin", new AttributeValue { S = $"{urlInfo.Origin}" }},
+                    {"CrawlTarget", new AttributeValue { S = $"{urlInfo.Target}" }},
+                    {"CrawlBackLink", new AttributeValue { S = $"{urlInfo.Url}"}},
+                });
             }
 
-            // only enqueue child links if depth is greater than 1
-            if(!matchedLink && urlInfo.Depth > 1) {
+            // get the found links with the most links on page
+            if (!matchedLink) {
 
-                // take the first link and add it to the table
-                var linkToQueue = foundLinks.Take(LINKS_PER_PAGE).First();
-                item["WikiId"] = new AttributeValue { S = $"{urlInfo.Origin}::{linkToQueue}"};
-                item["CrawlUrl"] = new AttributeValue { S = $"{linkToQueue}"};
-                item["CrawlDepth"] = new AttributeValue { N = $"{urlInfo.Depth - 1}" };
-                item["CrawlOrigin"] = new AttributeValue { S = $"{urlInfo.Origin}" };
-                item["CrawlTarget"] = new AttributeValue { S = $"{urlInfo.Target}" };
-                item["CrawlBackLink"] = new AttributeValue { S = $"{urlInfo.Url}"};
+                // only enqueue child links if depth is greater than 1
+                if(urlInfo.Depth > 1) {
+
+                    // take the first link and add it to the table
+                    var linkToQueue = foundLinks.Take(2);
+                    foreach (var linkToQ in linkToQueue) {
+                        items.Add(new Dictionary<string, AttributeValue> {
+                            {"WikiId", new AttributeValue {S = $"{urlInfo.Origin}::{linkToQ}"}},
+                            {"CrawlUrl", new AttributeValue {S = $"{linkToQ}"}},
+                            {"CrawlDepth", new AttributeValue {N = $"{urlInfo.Depth - 1}"}},
+                            {"CrawlOrigin", new AttributeValue {S = $"{urlInfo.Origin}"}},
+                            {"CrawlTarget", new AttributeValue {S = $"{urlInfo.Target}"}},
+                            {"CrawlBackLink", new AttributeValue {S = $"{urlInfo.Url}"}}
+                        });
+                    }
+                }
             }
 
             // write the item to the table
-            if(matchedLink || urlInfo.Depth > 1) {
-                try {
-                    var writeRequest = new PutItemRequest {
-                        TableName = TABLE_NAME,
-                        Item = item,
-                        ConditionExpression = "WikiId <> :wikiid",
-                        ExpressionAttributeValues = new Dictionary<string, AttributeValue> {
-                            {":wikiid", item["WikiId"]}
-                        }
-                    };
-                    var writeResponse = await _client.PutItemAsync(writeRequest);
-                    LogInfo($"writeResponse {JsonConvert.SerializeObject(writeResponse)}");
-                }
-                catch (Exception e) {
-                    LogInfo($"item {JsonConvert.SerializeObject(item)}");
-                    LogInfo($"Exception {e}");
+            foreach (var item in items) {
+                if(matchedLink || urlInfo.Depth > 1) {
+                    try {
+                        var writeRequest = new PutItemRequest {
+                            TableName = TABLE_NAME,
+                            Item = item,
+                            ConditionExpression = "WikiId <> :wikiid",
+                            ExpressionAttributeValues = new Dictionary<string, AttributeValue> {
+                                {":wikiid", item["WikiId"]}
+                            }
+                        };
+                        var writeResponse = await _client.PutItemAsync(writeRequest);
+                        LogInfo($"writeResponse {JsonConvert.SerializeObject(writeResponse)}");
+                    }
+                    catch (Exception e) {
+                        LogInfo($"item {JsonConvert.SerializeObject(item)}");
+                        LogInfo($"Exception {e}");
+                    }
                 }
             }
         }
