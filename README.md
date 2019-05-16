@@ -107,8 +107,8 @@ Instead of queueing only one link to the dynamo table, add two. **Be careful, as
 > **NOTE**: If your lambda function spirals out of control, you can delete the function. The lambda function can be quickly redeployed using lash. 
 
 
-## 3rd Level - Add Links Intelligently! (sort of..)
-Instead of grabbing the first few links and queueing them into the dynamo table, queue the links that have the most links. For example, if analyzing the article, Apple, grab the link on [Fruits](https://en.wikipedia.org/wiki/Fruit) rather than on [Oral Allergy Syndromes](https://en.wikipedia.org/wiki/Oral_allergy_syndrome), as the page on Fruits has much more links to potentially match the Destination article. 
+## 3rd Level - Add Links Intelligently! (sort of...)
+Instead of grabbing the first few links and queueing them into the dynamo table, queue the links that have the most links. For example, if analyzing the article, [Apple](https://en.wikipedia.org/wiki/Apple), grab the link on [Fruits](https://en.wikipedia.org/wiki/Fruit) rather than on [1-Methylcyclopropene](https://en.wikipedia.org/wiki/1-Methylcyclopropene), as the page on Fruits has much more links to potentially match the Destination article. 
 
 > **NOTE**: The lambda function is defaulted to a **30 second timeout**. You can modify this in Module.yml and redeploy. If your lambda function is taking a long time to iterate through all the links, consider being more aggressive with the FilterLink function in HelperFunctions.  
 
