@@ -16,6 +16,10 @@ using Newtonsoft.Json;
 
 namespace My.Wiki.Wiki {
 
+    public class CountObjectsThing {
+        public Uri Uri { get; set; }
+        public int Count { get; set; }
+    }
     public class Function : ALambdaFunction<DynamoDBEvent, string> {
 
         private const int LINKS_PER_PAGE = 10;
@@ -101,7 +105,7 @@ namespace My.Wiki.Wiki {
                     break;
                 }
 
-                // filter out unecessary links
+                // filter out unnecessary links
                 if(HelperFunctions.FilterLink(parsedLink)) {
                     continue;
                 }
@@ -124,12 +128,25 @@ namespace My.Wiki.Wiki {
 
             // get the found links with the most links on page
             if (!matchedLink) {
+                var foundLinksCount = new List<CountObjectsThing>();
+                foreach (var foundLink in foundLinks) {
+                    var response1 = await httpClient.GetAsync(foundLink);
+                    var strContents1 = await response1.Content.ReadAsStringAsync();
+                    var pageLinkCount = HelperFunctions.FindLinks(strContents1).Count();
+                    foundLinksCount.Add(new CountObjectsThing{
+                        Uri = foundLink,
+                        Count = pageLinkCount
+                    });
+                }
+                var foundLinksCount2 = foundLinksCount.OrderByDescending(x => x.Count); 
+//                LogInfo($"foundLinksCount {JsonConvert.SerializeObject(foundLinksCount)}");
 
                 // only enqueue child links if depth is greater than 1
                 if(urlInfo.Depth > 1) {
 
                     // take the first link and add it to the table
-                    var linkToQueue = foundLinks.Take(2);
+                    var linkToQueue = foundLinksCount2.Take(2).Select(x => x.Uri).ToList();
+                    LogInfo($"linkToQueue {linkToQueue}");
                     foreach (var linkToQ in linkToQueue) {
                         items.Add(new Dictionary<string, AttributeValue> {
                             {"WikiId", new AttributeValue {S = $"{urlInfo.Origin}::{linkToQ}"}},
@@ -155,8 +172,8 @@ namespace My.Wiki.Wiki {
                                 {":wikiid", item["WikiId"]}
                             }
                         };
+                        LogInfo($"writeResponse {JsonConvert.SerializeObject(writeRequest)}");
                         var writeResponse = await _client.PutItemAsync(writeRequest);
-                        LogInfo($"writeResponse {JsonConvert.SerializeObject(writeResponse)}");
                     }
                     catch (Exception e) {
                         LogInfo($"item {JsonConvert.SerializeObject(item)}");
